@@ -15,13 +15,18 @@ ARG TZ="Asia/Shanghai"
 
 ENV TZ ${TZ}
 
+
+COPY --from=builder /go/bin/go-shadowsocks2 /usr/bin/shadowsocks
+COPY entrypoint.sh /entrypoint.sh
+
 RUN apk upgrade --update \
     && apk add tzdata \
+	&& chmod -R 777 /usr/bin/shadowsocks \
+	&& chmod -R 777 /entrypoint.sh \
     && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo ${TZ} > /etc/timezone \
     && rm -rf /var/cache/apk/*
 
-COPY --from=builder /go/bin/go-shadowsocks2 /usr/bin/shadowsocks
-COPY entrypoint.sh /entrypoint.sh
+
 
 ENTRYPOINT ["/entrypoint.sh"]
